@@ -1,0 +1,16 @@
+easrly arrial 200
+ontime 100
+late per min -50
+standup first min 100
+10:05 50 point 
+then per min -50
+missed -500
+break early 100
+late -100
+project on time 100
+early project submittion 200 
+late per date 200
+over time per hour 200
+highest point increase by 500 
+QA no bug 500
+QA per bug 200
