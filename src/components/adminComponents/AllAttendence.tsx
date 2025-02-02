@@ -10,7 +10,7 @@ const AllAttendence: React.FC = () => {
   const [userAttendenceDetails, setUserAttendenceDetails] = useState<any[]>([])
 
   useEffect(() => {
-    const response = axios
+    axios
       .get('http://localhost:3001/api/users/allusers')
       .then(({ data }) => {
         console.log('All user data:', data)
@@ -58,7 +58,7 @@ const AllAttendence: React.FC = () => {
       }
 
       setFilteredUserDetails(filteredData)
-    }, 1000) // 1-second debounce delay
+    }, 700) // 1-second debounce delay
 
     debouncedFilter()
   }, [name, date, userAttendenceDetails])

@@ -49,9 +49,13 @@ const AllProject: React.FC = () => {
 
   // Use debounce for search (1-second delay)
   useEffect(() => {
-    const debouncedSearch = debounce(handleSearch, 700)
-    debouncedSearch()
-  }, [name, date])
+    if (!name && !date) {
+      setFilteredUserDetails(allUsers) // Ensure the table is initially populated
+    } else {
+      const debouncedSearch = debounce(handleSearch, 700)
+      debouncedSearch()
+    }
+  }, [name, date, allUsers])
 
   const handleEdit = (index: number) => {
     alert(`Edit row ${index}`)
