@@ -1,6 +1,12 @@
 import React from 'react'
+import { useRecoilValue } from 'recoil'
+import { checkinState } from '../../../recoil/atoms/checkinState'
+
+import { checkoutState } from '../../../recoil/atoms/checkoutState'
 
 const About: React.FC = () => {
+  const checkinDeatails = useRecoilValue(checkinState)
+  const checkoutDetails = useRecoilValue(checkoutState)
   return (
     <div
       className='flex flex-col items-center bg-gray-100'
@@ -31,7 +37,7 @@ const About: React.FC = () => {
                     Description
                   </th>
                   <th className='border-b py-2 text-sm font-medium text-gray-600'>
-                    Date
+                    WorkStatus
                   </th>
                 </tr>
               </thead>
@@ -41,10 +47,23 @@ const About: React.FC = () => {
                     CheckIn{' '}
                   </td>
                   <td className='border-b py-2 text-sm text-gray-700'>
-                    Description of CheckIn Time
+                    {checkinDeatails?.checkin
+                      ? new Date(checkinDeatails.checkin).toLocaleTimeString(
+                          'en-PK',
+                          {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: true,
+                            timeZone: 'Asia/Karachi'
+                          }
+                        )
+                      : 'N/A'}
                   </td>
                   <td className='border-b py-2 text-sm text-gray-700'>
-                    2025-01-01
+                    {checkinDeatails?.workStatus
+                      ? checkinDeatails.workStatus
+                      : 'Not Updated Yet'}
                   </td>
                 </tr>
                 <tr>
@@ -71,9 +90,24 @@ const About: React.FC = () => {
                   <td className='border-b py-2 text-sm text-gray-700'>
                     CheckOut Time
                   </td>
-                  <td className='border-b py-2 text-sm text-gray-700'>Time</td>
                   <td className='border-b py-2 text-sm text-gray-700'>
-                    2025-01-03
+                    {checkoutDetails?.checkout
+                      ? new Date(checkoutDetails.checkout).toLocaleTimeString(
+                          'en-PK',
+                          {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: true,
+                            timeZone: 'Asia/Karachi'
+                          }
+                        )
+                      : 'N/A'}
+                  </td>
+                  <td className='border-b py-2 text-sm text-gray-700'>
+                    {checkinDeatails?.workStatus
+                      ? checkinDeatails.workStatus
+                      : 'Not Updated Yet'}
                   </td>
                 </tr>
                 <tr>

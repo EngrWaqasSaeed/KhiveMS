@@ -1,9 +1,9 @@
 easrly arrial 200
 ontime 100
 late per min -50
-standup first min 100
-10:05 50 point 
-then per min -50
+standup early min 100
+10:05 ontime 50 point 
+then late per min -50
 missed -500
 break early 100
 late -100

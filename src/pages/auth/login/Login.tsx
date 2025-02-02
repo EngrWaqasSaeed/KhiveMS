@@ -5,9 +5,18 @@ import 'animate.css'
 import axios from 'axios'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useSetRecoilState } from 'recoil'
+import { jwtDecode } from 'jwt-decode'
+import { loginUserState } from '../../../recoil/atoms/loginUserState'
+
+interface DecodedToken {
+  name: string
+  email: string
+}
 
 const Login = () => {
   const navigate = useNavigate()
+  const setUser = useSetRecoilState(loginUserState)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
@@ -27,6 +36,7 @@ const Login = () => {
 
       // Store the token in localStorage
       localStorage.setItem('token', token)
+
       const api = 'http://localhost:3001/api/auth/sign'
       axios
         .post(
@@ -36,6 +46,22 @@ const Login = () => {
         )
         .then(response => {
           console.log('Successfully set the header' + response.data)
+          if (token) {
+            //Decoded token to get user details
+            const decode: DecodedToken = jwtDecode<DecodedToken>(token)
+            console.log('decode:', decode)
+            // update the Recoil State with user details
+            setUser({ name: decode.name, email: decode.email })
+            console.log(
+              'Logged In User is:' +
+                'Name is:' +
+                decode.name +
+                'Email is ' +
+                decode.email
+            )
+          } else {
+            console.log('UseRecoil Values not set successfully')
+          }
         })
         .catch(error => {
           console.log(error + ' Error Occurs in Setting Header')

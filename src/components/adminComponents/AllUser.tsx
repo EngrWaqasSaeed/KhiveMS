@@ -1,37 +1,43 @@
+//1:GET USER DATA FROM BACKEND
+//1:SET USER DETAILS IN USERRECOIL STATE
+
 import React, { useState, useEffect } from 'react'
-import { useRecoilValue } from 'recoil'
+import axios from 'axios'
 import 'animate.css'
 import { FiEdit, FiTrash } from 'react-icons/fi'
-import { userState } from '../../recoil/atoms/userState'
 
 const AllUser: React.FC = () => {
   const [name, setName] = useState('')
   const [date, setDate] = useState('')
   const [filteredUserDetails, setFilteredUserDetails] = useState<any[]>([])
 
-  const { allUsers } = useRecoilValue(userState)
-
   useEffect(() => {
-    setFilteredUserDetails(allUsers)
-  }, [allUsers])
+    const response = axios
+      .get('http://localhost:3001/api/users/allusers')
+      .then(({ data }) => {
+        console.log('All user data is:', data)
+        setFilteredUserDetails(data)
+        // console.log('All User Details is:', allUsers)
+      })
+  }, [])
 
   //Debounce Search login
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       handleSearch()
-    }, 400)
+    }, 4000)
     return () => clearTimeout(timeoutId)
   }, [name, date])
 
   const handleSearch = () => {
-    const filtered = allUsers.filter(user => {
-      const matchesName = name
-        ? user.name.toLowerCase().includes(name.toLowerCase())
-        : true
-      const matchesDate = date ? user.joining_date === date : true
-      return matchesName && matchesDate
-    })
-    setFilteredUserDetails(filtered)
+    // const filtered = allUsers.filter(user => {
+    //   const matchesName = name
+    //     ? user.name.toLowerCase().includes(name.toLowerCase())
+    //     : true
+    //   const matchesDate = date ? user.joining_date === date : true
+    //   return matchesName && matchesDate
+    // })
+    // setFilteredUserDetails(filtered)
   }
 
   const handleEdit = (index: number) => {
@@ -88,9 +94,19 @@ const AllUser: React.FC = () => {
                 <tr key={index} className='hover:bg-gray-50'>
                   <td className='border px-4 py-2'>{user.name}</td>
                   <td className='border px-4 py-2'>{user.email}</td>
-                  <td className='border px-4 py-2'>{user.cnic}</td>
-                  <td className='border px-4 py-2'>{user.joining_date}</td>
-                  <td className='border px-4 py-2'>{user.date_of_birth}</td>
+                  <td className='border px-4 py-2'>
+                    {user.cnic ? user.cnic : '---'}
+                  </td>
+                  <td className='border px-4 py-2'>
+                    {user.joiningDate
+                      ? new Date(user.joiningDate).toLocaleDateString('en-GB')
+                      : 'Not Updated'}
+                  </td>
+                  <td className='border px-4 py-2'>
+                    {user.dateOfBirth
+                      ? new Date(user.dateOfBirth).toLocaleDateString('en-GB')
+                      : 'Not Provided'}
+                  </td>
                   <td className='border px-4 py-2 flex space-x-2'>
                     <button
                       onClick={() => handleEdit(index)}

@@ -1,42 +1,67 @@
 import React, { useState, useEffect } from 'react'
 import 'animate.css'
 import { FiEdit, FiTrash } from 'react-icons/fi'
-import { useRecoilValue } from 'recoil'
-import { userState } from '../../recoil/atoms/userState'
+import axios from 'axios'
 
 const AllAttendence: React.FC = () => {
   const [name, setName] = useState('')
   const [date, setDate] = useState('')
   const [filteredUserDetails, setFilteredUserDetails] = useState<any[]>([])
-
-  const { allUsers } = useRecoilValue(userState)
+  const [userAttendenceDetails, setUserAttendenceDetails] = useState<any[]>([])
 
   useEffect(() => {
-    // Set initial data
-    setFilteredUserDetails(allUsers)
-  }, [allUsers])
+    const response = axios
+      .get('http://localhost:3001/api/users/allusers')
+      .then(({ data }) => {
+        console.log('All user data:', data)
 
-  // Debounce Search logic
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      handleSearch()
-    }, 400)
-    return () => clearTimeout(timeoutId)
-  }, [name, date])
+        const allAttendance = data.flatMap((user: any) =>
+          user.attendences.map((attendance: any) => ({
+            userName: user.name, // Get user's name
+            ...attendance // Spread attendance details
+          }))
+        )
 
-  const handleSearch = () => {
-    const filteredData = allUsers.filter(user => {
-      const matchesName = name
-        ? user.name.toLowerCase().includes(name.toLowerCase())
-        : true
-      const matchesDate = date ? user.date === date : true
-      return matchesName && matchesDate
-    })
+        setUserAttendenceDetails(allAttendance)
+        setFilteredUserDetails(allAttendance) // Initially set all data to be shown
+      })
+      .catch(error => console.error('Error fetching data:', error))
+  }, [])
 
-    // Logging to check data
-    console.log(filteredData) // Track the filtered data
-    setFilteredUserDetails(filteredData)
+  //  Debounce function
+  const debounce = (func: Function, delay: number) => {
+    let timer: number
+    return (...args: any) => {
+      clearTimeout(timer)
+      timer = window.setTimeout(() => func(...args), delay)
+    }
   }
+
+  // Filtering Functionality
+  useEffect(() => {
+    const debouncedFilter = debounce(() => {
+      let filteredData = userAttendenceDetails
+
+      // If name is provided, filter by userName
+      if (name) {
+        filteredData = filteredData.filter(attendance =>
+          attendance.userName.toLowerCase().includes(name.toLowerCase())
+        )
+      }
+
+      // If date is provided, filter by date
+      if (date) {
+        filteredData = filteredData.filter(
+          attendance =>
+            new Date(attendance.date).toISOString().split('T')[0] === date
+        )
+      }
+
+      setFilteredUserDetails(filteredData)
+    }, 1000) // 1-second debounce delay
+
+    debouncedFilter()
+  }, [name, date, userAttendenceDetails])
 
   const handleEdit = (index: number) => {
     alert(`Edit row ${index}`)
@@ -67,10 +92,7 @@ const AllAttendence: React.FC = () => {
           onChange={e => setDate(e.target.value)}
           className='border border-gray-300 rounded px-3 py-2'
         />
-        <button
-          onClick={handleSearch}
-          className='bg-blue-500 text-white px-4 py-2 rounded animate__animated animate__shakeX'
-        >
+        <button className='bg-blue-500 text-white px-4 py-2 rounded animate__animated animate__shakeX'>
           Search
         </button>
       </div>
@@ -89,14 +111,47 @@ const AllAttendence: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredUserDetails.map((user, index) => (
+              {filteredUserDetails.map((attendance, index) => (
                 <tr key={index} className='hover:bg-gray-50'>
-                  <td className='border px-4 py-2'>{user.name}</td>
-                  <td className='border px-4 py-2'>{user.status}</td>
-                  <td className='border px-4 py-2'>{user.checkin}</td>
-                  <td className='border px-4 py-2'>{user.checkout}</td>
-                  <td className='border px-4 py-2'>{user.point}</td>
-                  <td className='border px-4 py-2'>{user.date}</td>
+                  <td className='border px-4 py-2'>{attendance.userName}</td>
+                  <td className='border px-4 py-2'>{attendance.workStatus}</td>
+
+                  <td className='border px-4 py-2'>
+                    {attendance.checkin
+                      ? new Date(attendance.checkin).toLocaleTimeString(
+                          'en-PK',
+                          {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: true,
+                            timeZone: 'Asia/Karachi'
+                          }
+                        )
+                      : 'N/A'}
+                  </td>
+                  <td className='border px-4 py-2'>
+                    {attendance.checkout
+                      ? new Date(attendance.checkout).toLocaleTimeString(
+                          'en-PK',
+                          {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: true,
+                            timeZone: 'Asia/Karachi'
+                          }
+                        )
+                      : 'N/A'}
+                  </td>
+                  <td className='border px-4 py-2'>
+                    {attendance.point || '-'}
+                  </td>
+                  <td className='border px-4 py-2'>
+                    {attendance.date
+                      ? new Date(attendance.date).toLocaleDateString('en-GB')
+                      : 'Loading'}
+                  </td>
                   <td className='border px-4 py-2 flex space-x-2'>
                     <button
                       onClick={() => handleEdit(index)}

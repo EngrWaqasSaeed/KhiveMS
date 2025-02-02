@@ -1,36 +1,71 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import 'react-quill/dist/quill.snow.css' // Import Quill CSS
 import ReactQuill from 'react-quill'
 import './home.css'
 import 'animate.css'
 import 'font-awesome/css/font-awesome.min.css' // Import Font Awesome CSS
 import axios from 'axios'
+import { checkinState } from '../../../recoil/atoms/checkinState'
+import { useSetRecoilState } from 'recoil'
+import { checkoutState } from '../../../recoil/atoms/checkoutState'
 
 const CheckinCheckoutForm: React.FC = () => {
   const [checkinText, setCheckinText] = useState('')
   const [checkoutText, setCheckoutText] = useState('')
-  const [isCheckedIn, setIsCheckedIn] = useState(false) // Track if the user has checked in
-  const [isCheckedOut, setIsCheckedOut] = useState(false) // Track if the user has checked out
-  const [workStatus, setWorkStatus] = useState('Onsite')
+  const [isCheckedIn, setIsCheckedIn] = useState(
+    localStorage.getItem('isCheckIn') === 'true'
+  ) // Track if the user has checked in
+  const [isCheckedOut, setIsCheckedOut] = useState(
+    localStorage.getItem('isCheckedOut') === 'true'
+  ) // Track if the user has checked out
+  const [workStatus, setWorkStatus] = useState('HYBRID')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const setCheckin = useSetRecoilState(checkinState)
+  const setCheckout = useSetRecoilState(checkoutState)
 
   const handleCheckin = async () => {
     if (checkinText.trim()) {
       try {
-        const response = await axios.post(
-          'http://localhost:3001/api/attendence/checkin',
-          {
+        const token = localStorage.getItem('token') // Retrieve token from local storage or state
+        console.log('Token is :' + token)
+
+        if (!token) {
+          console.log('Token is Not Founded')
+          return
+        } else {
+          const response = await axios.post(
+            'http://localhost:3001/api/attendence/checkin',
+            {
+              todayTask: checkinText,
+              workStatus
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          )
+
+          alert('CheckIn Successfully')
+          setIsCheckedIn(true) // Mark as checked in
+          localStorage.setItem('isCheckedIn', 'true')
+          setError('')
+          console.log('Submitted form data presenrt here', response.data)
+          //Update the recoil state when the user is check in
+          setCheckin({
+            userId: response.data.data.userId,
+            checkin: response.data.data.checkin,
+            date: response.data.data.date,
             todayTask: checkinText,
-            workStatus
-          }
-        )
-        alert('CheckIn Successfully')
-        setIsCheckedIn(true) // Mark as checked in
-        setError('')
+            workStatus: workStatus,
+            setIsCheckedIn: true
+          })
+        }
       } catch (err: any) {
         setError(
-          err.response?.data?.error || 'Somethng Wents Wrong During the Checkin'
+          err.response?.data?.message ||
+            'Something went wrong during the check-in'
         )
         setMessage('')
       }
@@ -39,15 +74,57 @@ const CheckinCheckoutForm: React.FC = () => {
 
   const handleCheckout = async () => {
     if (checkoutText.trim()) {
-      const response = await axios.post(
-        'http://localhost:3001/api/attendence/checkout',
-        {
-          dayReport: checkoutText
+      try {
+        const token = localStorage.getItem('token') // Retrieve token from local storage
+
+        if (!token) {
+          setError('Token not found. Please log in again.')
+          return // Exit the function if token is null
         }
-      )
-      setIsCheckedOut(true) // Mark as checked out
+
+        const response = await axios.post(
+          'http://localhost:3001/api/attendence/checkout',
+          {
+            dayReport: checkoutText
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+        alert('CheckOut Successfully')
+        setIsCheckedOut(true)
+        localStorage.setItem('isCheckOut', 'true')
+        localStorage.removeItem('isCheckedIn')
+        console.log('Logout Response Data is:', response.data)
+        //Update the recoil state when the user is check in
+
+        setCheckout({
+          userId: response.data.data.id,
+          date: response.data.data.date,
+          dayReport: response.data.data.dayReport,
+          checkout: response.data.data.checkout
+        })
+
+        setIsCheckedOut(true) // Mark as checked out
+        setError('')
+      } catch (err: any) {
+        err.response?.data?.message || 'SomeThing Wents Wrong During CheckOut'
+      }
     }
   }
+  useEffect(() => {
+    const storedCheckin = localStorage.getItem('isCheckedIn') === 'true'
+    const storedCheckout = localStorage.getItem('isCheckedOut') === 'true'
+
+    setIsCheckedIn(storedCheckin)
+    setIsCheckedOut(storedCheckout)
+
+    setTimeout(() => {
+      localStorage.setItem('isCheckOut', 'false')
+    }, 10000) // 12 hours in milliseconds
+  }, [])
 
   return (
     <div className='main-container flex flex-col bg-gray-100 mt-0'>
@@ -81,9 +158,9 @@ const CheckinCheckoutForm: React.FC = () => {
                   onChange={e => setWorkStatus(e.target.value)}
                   className='p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 max-w-48'
                 >
-                  <option value='Onsite'>Onsite</option>
-                  <option value='WFH'>Remote</option>
-                  <option value='Hybrid'>Hybrid</option>
+                  <option value='ONSITE'>Onsite</option>
+                  <option value='WORKFORMHOME'>Remote</option>
+                  <option value='HYBRID'>Hybrid</option>
                 </select>
               </div>
               <button

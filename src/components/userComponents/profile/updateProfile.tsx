@@ -1,30 +1,90 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './updateProfile.css'
 import profileImage from '../../../assets/images/HRjpg.jpg'
+import axios from 'axios'
+import { jwtDecode } from 'jwt-decode'
+
+interface DecodedToken {
+  id: number // ID of the user
+}
 
 const UpdateProfile: React.FC = () => {
   const [profile, setProfile] = useState({
-    name: 'Ruksana Shafiq',
-    email: 'Ruksana@gmail.com',
-    cnic: '12345-567890-1',
-    post: 'Software Engineer',
-    dob: '2003-11-30'
+    id: '',
+    name: '',
+    cnic: '',
+    joining_Date: '',
+    date_Of_Birth: ''
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setProfile({ ...profile, [name]: value })
+  const token = localStorage.getItem('token')
+  if (!token) {
+    console.warn('Token not found. Please log in.')
+    // You can redirect the user or show a message if necessary
+    return
+  }
+  const decoded: DecodedToken = jwtDecode<DecodedToken>(token)
+
+  const userId = decoded.id // Assuming the signed-in user's ID is stored in localStorage
+  console.log('User id is:', userId)
+
+  if (!token || !userId) {
+    console.log('Token or User ID not found')
+    return null
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      console.log('User Id is:', userId)
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/api/users/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        )
+        setProfile(response.data)
+        console.log('Fetch user details is ', response)
+      } catch (error) {
+        console.error('Error fetching user data in get route:', error)
+      }
+    }
 
-    console.log('Updated Profile:', profile)
+    fetchUserData()
+  }, [userId, token])
+
+  // Handle form field changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setProfile(prevProfile => ({ ...prevProfile, [name]: value }))
+  }
+  console.log('profile is:', profile)
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const response = await axios.put(
+        `http://localhost:3001/api/users/${profile.id}`,
+        {
+          name: profile.name,
+          cnic: profile.cnic,
+          joiningDate: new Date(profile.joining_Date),
+          dateOfBirth: new Date(profile.date_Of_Birth)
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      console.log('Updated Profile:', response.data)
+      alert('Profile updated successfully!')
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      alert('Failed to update profile. Please try again.')
+    }
   }
 
   return (
     <div className='main-container flex flex-col items-center bg-gray-100'>
-      <div className='sub-container bg-white p-6 rounded-lg shadow-lg  mt-5'>
+      <div className='sub-container bg-white p-6 rounded-lg shadow-lg mt-5'>
         {/* Profile Image Section */}
         <div className='relative mb-4'>
           <img
@@ -50,25 +110,24 @@ const UpdateProfile: React.FC = () => {
           </div>
           <div>
             <label className='block text-sm font-medium text-gray-600 mb-1'>
-              Email
+              CNIC
             </label>
             <input
-              type='email'
-              name='email'
-              value={profile.email}
+              type='text'
+              name='cnic'
+              value={profile.cnic}
               onChange={handleChange}
               className='w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
             />
           </div>
-
           <div>
             <label className='block text-sm font-medium text-gray-600 mb-1'>
-              Password
+              Joining Date
             </label>
             <input
-              type='password'
-              name='password'
-              value='password'
+              type='date'
+              name='joiningDate'
+              value={profile.joining_Date}
               onChange={handleChange}
               className='w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
             />
@@ -79,8 +138,8 @@ const UpdateProfile: React.FC = () => {
             </label>
             <input
               type='date'
-              name='dob'
-              value={profile.dob}
+              name='dateOfBirth'
+              value={profile.date_Of_Birth}
               onChange={handleChange}
               className='w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
             />

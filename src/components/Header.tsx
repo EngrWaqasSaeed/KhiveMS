@@ -6,16 +6,20 @@ import { FaBell, FaEnvelope } from 'react-icons/fa'
 import { adminState } from '../../src/recoil/atoms/adminState'
 import { userState } from '../../src/recoil/atoms/userState'
 
+import { loginUserState } from '../recoil/atoms/loginUserState'
+
 const Header: React.FC = () => {
   // Fetch user and admin details from Recoil
-  const userDetails = useRecoilValue(userState)
-  const adminDetails = useRecoilValue(adminState)
+  const loginUserDetails = useRecoilValue(loginUserState)
+  console.log('In Header The value of user is: ' + loginUserDetails)
+  // const userDetails = useRecoilValue(userState)
+  // const adminDetails = useRecoilValue(adminState)
 
-  // Determine whether the user is an admin or regular user
-  const isAdmin = adminDetails.adminDetails.role === 'admin'
-  const details: typeof adminDetails.adminDetails = isAdmin
-    ? adminDetails.adminDetails
-    : userDetails.userDetails
+  // // // Determine whether the user is an admin or regular user
+  // // const isAdmin = adminDetails.adminDetails.role === 'admin'
+  // // const details: typeof adminDetails.adminDetails = isAdmin
+  // //   ? adminDetails.adminDetails
+  // //   : userDetails.allUsers
 
   return (
     <header
@@ -77,13 +81,15 @@ const Header: React.FC = () => {
         {/* User Information */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ textAlign: 'right' }}>
-            <strong>{details.name}</strong>
+            <p>
+              <strong>{loginUserDetails?.name}</strong>
+            </p>
             <p style={{ margin: 0, fontSize: '0.8rem' }}>
-              {isAdmin ? 'Administrator' : 'User'}
+              {loginUserDetails?.email}
             </p>
           </div>
           <img
-            src={details.imageUrl || HR}
+            src={HR}
             alt='User Avatar'
             style={{ borderRadius: '50%', width: '40px', height: '40px' }}
           />
