@@ -18,6 +18,7 @@ const AllAttendence: React.FC = () => {
         const allAttendance = data.flatMap((user: any) =>
           user.attendences.map((attendance: any) => ({
             userName: user.name, // Get user's name
+            points: user.points,
             ...attendance // Spread attendance details
           }))
         )
@@ -145,7 +146,7 @@ const AllAttendence: React.FC = () => {
                       : 'N/A'}
                   </td>
                   <td className='border px-4 py-2'>
-                    {attendance.point || '-'}
+                    {attendance.points || '-'}
                   </td>
                   <td className='border px-4 py-2'>
                     {attendance.date

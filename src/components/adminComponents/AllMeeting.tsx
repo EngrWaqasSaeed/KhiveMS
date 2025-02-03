@@ -70,16 +70,30 @@ const AllMeeting: React.FC = () => {
   }
 
   const handleSubmit = async () => {
+    const token = localStorage.getItem('token') // Retrieve token from local storage or state
+    console.log('Token is :' + token)
+
+    if (!token) {
+      console.log('Token is Not Founded')
+      return
+    } else {
+      console.log(token)
+    }
+
     const statusData = filteredUserDetails.map((user, index) => ({
       userId: user.id,
-      joining_status: selectedStatuses[index] || 'ONTIME' // Default to 'ONTIME' if not selected
+      joining_status: selectedStatuses[index] || 'MISSED' // Default to 'ONTIME' if not selected
     }))
     try {
-      const response = await axios.post('http://localhost:3001/api/meeting', {
-        statuses: statusData
-      })
+      const response = await axios.post(
+        'http://localhost:3001/api/meeting',
+        {
+          statuses: statusData
+        },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         alert('All meeting statuses saved successfully!')
       }
     } catch (error) {
@@ -140,10 +154,10 @@ const AllMeeting: React.FC = () => {
                       className='border px-2 py-1 rounded'
                     >
                       <option value='Select'>Select</option>
-                      <option value='Early'>Early</option>
-                      <option value='Ontime'>Ontime</option>
-                      <option value='Late'>Late</option>
-                      <option value='Missed'>Missed</option>
+                      <option value='EARLY'>Early</option>
+                      <option value='ONTIME'>Ontime</option>
+                      <option value='LATE'>Late</option>
+                      <option value='MISSED'>Missed</option>
                     </select>
                   </td>
                   <td className='border px-4 py-2 flex space-x-2'>

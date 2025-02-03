@@ -24,7 +24,7 @@ const AllProject: React.FC = () => {
         setFilteredUserDetails(data) // Initially, show all users
       })
     }
-  }, [])
+  }, [name, date])
 
   // Function to debounce search (1 second delay)
   const debounce = (func: Function, delay: number) => {
@@ -47,7 +47,6 @@ const AllProject: React.FC = () => {
     setFilteredUserDetails(filtered)
   }
 
-  // Use debounce for search (1-second delay)
   useEffect(() => {
     if (!name && !date) {
       setFilteredUserDetails(allUsers) // Ensure the table is initially populated
@@ -71,21 +70,35 @@ const AllProject: React.FC = () => {
   }
 
   const handleSubmit = async () => {
+    const token = localStorage.getItem('token') // Retrieve token from local storage or state
+    console.log('Token is :' + token)
+
+    if (!token) {
+      console.log('Token is Not Founded')
+      return
+    } else {
+      console.log(token)
+    }
+
     const statusData = filteredUserDetails.map((user, index) => ({
       userId: user.id,
-      joining_status: selectedStatuses[index] || 'ONTIME' // Default to 'ONTIME' if not selected
+      project_status: selectedStatuses[index] || 'ONTIME' // Default to 'ONTIME' if not selected
     }))
     try {
-      const response = await axios.post('http://localhost:3001/api/meeting', {
-        statuses: statusData
-      })
+      const response = await axios.post(
+        'http://localhost:3001/api/project',
+        {
+          statuses: statusData
+        },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
 
-      if (response.status === 201) {
-        alert('All meeting statuses saved successfully!')
+      if (response.status === 200) {
+        alert('All Project statuses saved successfully!')
       }
     } catch (error) {
-      console.error('Error updating meeting statuses:', error)
-      alert('Failed to update meeting statuses.')
+      console.error('Error updating Project statuses:', error)
+      alert('Failed to update Project statuses.')
     }
   }
 
@@ -93,7 +106,7 @@ const AllProject: React.FC = () => {
     <div className='p-4'>
       <div className='text-left'>
         <h1 className='text-2xl font-semibold mb-5 text-red-800'>
-          Project Details :
+          Project Details:
         </h1>
       </div>
       <div className='flex items-center space-x-4 mb-4'>
@@ -141,10 +154,10 @@ const AllProject: React.FC = () => {
                       className='border px-2 py-1 rounded'
                     >
                       <option value='Select'>Select</option>
-                      <option value='Early'>Early</option>
-                      <option value='Ontime'>Ontime</option>
-                      <option value='Late'>Late</option>
-                      <option value='Missed'>Missed</option>
+                      <option value='EARLY'>Early</option>
+                      <option value='ONTIME'>Ontime</option>
+                      <option value='LATE'>Late</option>
+                      <option value='MISSED'>Missed</option>
                     </select>
                   </td>
                   <td className='border px-4 py-2 flex space-x-2'>

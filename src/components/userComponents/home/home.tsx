@@ -201,7 +201,7 @@ const CheckinCheckoutForm: React.FC = () => {
         {/* Good Bye message */}
         {isCheckedOut && (
           <div className='mt-6 text-center text-lg font-medium text-green-500'>
-            Good Bye! Have a Good Day 🖕
+            Good Bye! Have a Good Day ⭐
           </div>
         )}
       </div>

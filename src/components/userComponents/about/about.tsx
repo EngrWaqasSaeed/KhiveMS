@@ -1,12 +1,34 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { checkinState } from '../../../recoil/atoms/checkinState'
-
 import { checkoutState } from '../../../recoil/atoms/checkoutState'
+import axios from 'axios'
 
 const About: React.FC = () => {
+  const [projectStatus, setProjectStatus] = useState<string | null>(null)
+
+  useEffect(() => {
+    axios
+      .get('/api/project')
+      .then(response => {
+        console.log(response)
+        if (
+          Array.isArray(response.data.projectStatus) &&
+          response.data.projectStatus.length > 0
+        ) {
+          setProjectStatus(response.data.projectStatus[0].project_status)
+        } else {
+          setProjectStatus('No Status Available')
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching project status:', error)
+        setProjectStatus('Error fetching status')
+      })
+  }, [])
   const checkinDeatails = useRecoilValue(checkinState)
   const checkoutDetails = useRecoilValue(checkoutState)
+
   return (
     <div
       className='flex flex-col items-center bg-gray-100'
@@ -80,7 +102,7 @@ const About: React.FC = () => {
                     Project Submition
                   </td>
                   <td className='border-b py-2 text-sm text-gray-700'>
-                    Pending
+                    {projectStatus}
                   </td>
                   <td className='border-b py-2 text-sm text-gray-700'>
                     2025-01-03
