@@ -12,13 +12,11 @@ const AllUser: React.FC = () => {
   const [filteredUserDetails, setFilteredUserDetails] = useState<any[]>([])
 
   useEffect(() => {
-    const response = axios
-      .get('http://localhost:3001/api/users/allusers')
-      .then(({ data }) => {
-        console.log('All user data is:', data)
-        setFilteredUserDetails(data)
-        // console.log('All User Details is:', allUsers)
-      })
+    axios.get('http://localhost:3001/api/users/allusers').then(({ data }) => {
+      console.log('All user data is:', data)
+      setFilteredUserDetails(data)
+      // console.log('All User Details is:', allUsers)
+    })
   }, [])
 
   //Debounce Search login
@@ -83,7 +81,7 @@ const AllUser: React.FC = () => {
               <tr>
                 <th className='border px-4 py-2'>Name</th>
                 <th className='border px-4 py-2'>Email</th>
-                <th className='border px-4 py-2'>CNIC</th>
+                <th className='border px-4 py-2'>Number</th>
                 <th className='border px-4 py-2'>Joining Date</th>
                 <th className='border px-4 py-2'>Date of Birth</th>
                 <th className='border px-4 py-2'>Actions</th>
@@ -95,7 +93,9 @@ const AllUser: React.FC = () => {
                   <td className='border px-4 py-2'>{user.name}</td>
                   <td className='border px-4 py-2'>{user.email}</td>
                   <td className='border px-4 py-2'>
-                    {user.cnic ? user.cnic : '---'}
+                    {user.contact_number
+                      ? '+9230' + user.contact_number
+                      : '---'}
                   </td>
                   <td className='border px-4 py-2'>
                     {user.joiningDate

@@ -10,7 +10,7 @@ interface DecodedToken {
   userId: number // ID of the user
   name: string // Name of the user
   email: string
-  cnic: string
+  contact_number: string
   joiningDate: string
   dateOFBirth: string
 }
@@ -66,9 +66,9 @@ const Profile: React.FC = () => {
               </span>
             </div>
             <div className='flex justify-between text-sm text-gray-600 font-medium'>
-              <span>CNIC:</span>
+              <span>Contact Number:</span>
               <span className='font-normal'>
-                {userData ? userData.cnic : 'lOADING...'}
+                +923{userData ? userData.contact_number : 'lOADING...'}
               </span>
             </div>
             <div className='flex justify-between text-sm text-gray-600 font-medium'>

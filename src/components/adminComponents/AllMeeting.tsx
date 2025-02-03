@@ -134,7 +134,7 @@ const AllMeeting: React.FC = () => {
               <tr>
                 <th className='border px-4 py-2'>Name</th>
                 <th className='border px-4 py-2'>Email</th>
-                <th className='border px-4 py-2'>CNIC</th>
+                <th className='border px-4 py-2'>Number</th>
                 <th className='border px-4 py-2'>Joining Status</th>
                 <th className='border px-4 py-2'>Actions</th>
               </tr>
@@ -145,7 +145,9 @@ const AllMeeting: React.FC = () => {
                   <td className='border px-4 py-2'>{user.name}</td>
                   <td className='border px-4 py-2'>{user.email}</td>
                   <td className='border px-4 py-2'>
-                    {user.cnic ? user.cnic : 'Not Provided'}
+                    {user.contact_number
+                      ? '+9230' + user.contact_number
+                      : 'Not Provided'}
                   </td>
                   <td className='border px-4 py-2'>
                     <select

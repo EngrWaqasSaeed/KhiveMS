@@ -12,9 +12,9 @@ const UpdateProfile: React.FC = () => {
   const [profile, setProfile] = useState({
     id: '',
     name: '',
-    cnic: '',
-    joining_Date: '',
-    date_Of_Birth: ''
+    contact_number: '',
+    joiningDate: '',
+    dateOfBirth: ''
   })
 
   const token = localStorage.getItem('token')
@@ -68,9 +68,9 @@ const UpdateProfile: React.FC = () => {
         `http://localhost:3001/api/users/${profile.id}`,
         {
           name: profile.name,
-          cnic: profile.cnic,
-          joiningDate: new Date(profile.joining_Date),
-          dateOfBirth: new Date(profile.date_Of_Birth)
+          contact_number: profile.contact_number,
+          joiningDate: new Date(profile.joiningDate),
+          dateOfBirth: new Date(profile.dateOfBirth)
         },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -110,12 +110,12 @@ const UpdateProfile: React.FC = () => {
           </div>
           <div>
             <label className='block text-sm font-medium text-gray-600 mb-1'>
-              CNIC
+              Contact Number:
             </label>
             <input
               type='text'
-              name='cnic'
-              value={profile.cnic}
+              name='contact_number'
+              value={profile.contact_number}
               onChange={handleChange}
               className='w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
             />
@@ -127,7 +127,7 @@ const UpdateProfile: React.FC = () => {
             <input
               type='date'
               name='joiningDate'
-              value={profile.joining_Date}
+              value={profile.joiningDate}
               onChange={handleChange}
               className='w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
             />
@@ -139,7 +139,7 @@ const UpdateProfile: React.FC = () => {
             <input
               type='date'
               name='dateOfBirth'
-              value={profile.date_Of_Birth}
+              value={profile.dateOfBirth}
               onChange={handleChange}
               className='w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400'
             />
